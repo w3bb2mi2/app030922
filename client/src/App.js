@@ -12,15 +12,13 @@ import { useAuth } from './hooks/auth.hook';
 //const AuthContext = createContext()
 
 function App() {
-  const { login, logout, userId, token, isReady, isAuth } = useAuth()
+  const { login, logout, userId, token, isReady, isAuth, getALLTodos, todos } = useAuth()
 
-  
-  console.log({ login, logout, userId, token, isReady, isAuth } )
   return (
     <AuthContext.Provider value={{ login, logout, userId, token, isReady, isAuth }}>
       <BrowserRouter>
         <div className="App">
-          <Navbar isAuth={isAuth} logout={logout}/>
+          <Navbar isAuth={isAuth} logout={logout} />
           <Routes>
             <Route path='/' element={<MainPage />} />
             <Route path='/login' element={<LoginForm head="Авторизация" isUser={true} />} />

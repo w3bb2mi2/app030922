@@ -4,27 +4,48 @@ import { useContext } from "react"
 import { AuthContext } from "../../context/AuthContext"
 import axios from "axios"
 import "./MainPage.scss"
+import { useEffect } from "react"
+import { TodoItem } from "../todoItem/TodoItem"
 
 export const MainPage = () => {
     const {  userId } = useContext(AuthContext)
     const [text, setText] = useState("")
+    const [toDos, setToDo] = useState([])
 
-    // создание нового ToDo
+    const handleRemove = async (_id) => {
+        const todo = await axios.delete(`http://localhost:5000/todo/${_id}`) 
+        getALLTodos(userId)        
+    }
+    useEffect(()=>{
+        getALLTodos(userId)
+        
+    },[userId])
+
+    const getALLTodos = async (userId) => {
+        const res = await axios.get("http://localhost:5000/todo", {
+            headers:{},
+            params:{userId: userId}
+        })  
+        .then(res=>setToDo(res.data))      
+        // setTodo(res.data)
+    }
 
     const createToDo = useCallback(
         async () => {
+            if(!text){return}
             try {
                 await axios.post("http://localhost:5000/add", {
                     text, userId
                 })
-                .then(res=>console.log(res.data.text))
+                .then(getALLTodos(userId))
+                setText("")
             } catch (error) {
 
             }
         }, [text, userId]
     )
-    console.log(text)
-
+    
+    
     return (
         <div className="container">
             <div className="main-page">
@@ -34,10 +55,9 @@ export const MainPage = () => {
                         <input
                             className="validate"
                             name="input"
-                            onChange={e => {
-                                console.log(e.target.value)
-                                setText(e.target.value)
-                                
+                            value={text}
+                            onChange={e => {                                
+                                setText(e.target.value)                                
                             }}
                         />
                         <label htmlFor="input">Задача</label>
@@ -50,16 +70,13 @@ export const MainPage = () => {
                 </form>
                 <h3>Активные задачи</h3>
                 <div className="todos">
-                    <div className="row flex todos-item">
-                        <div className="col todos-num">1</div>
-                        <div className="col todos-text">some task</div>
-                        <div className="col todos-buttons">
-                            <i class="material-icons blue-text">check</i>
-                            <i class="material-icons orange-text">warning</i>
-                            <i class="material-icons red-text">delete</i>
-                        </div>
-                    </div>
+                    {
+                        toDos && toDos.map((item, index)=>
+                            <TodoItem handleRemove={()=>handleRemove(item._id)} text={item.text} index={index+1} key={index} _id = {item._id}/>
+                        )
+                    }
                 </div>
+                
             </div>
         </div>
     )

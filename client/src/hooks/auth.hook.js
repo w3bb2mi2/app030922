@@ -1,13 +1,17 @@
+import axios from "axios"
 import { useCallback, useEffect, useState } from "react"
 
 
 export const useAuth = () => {
-    console.log("Отработала функция 'useAuth'")
+    
     const [token, setToken] = useState(null)
     const [userId, setUserId] = useState(null)
     const [isReady, setIsReady] = useState(false)
     const [isAuth, setIsAuth] = useState(false)
+    
 
+
+    
     const login = useCallback(
         (jwtToken, id) => {
             setToken(jwtToken)
@@ -25,13 +29,16 @@ export const useAuth = () => {
         setIsAuth(false)
         localStorage.removeItem("userData")
     }
+    
+    
     useEffect(() => {
         const data = JSON.parse(localStorage.getItem("userData"))
-        console.log({data})
         if (data && data.token) {
             login(data.token, data.userId)
         }
         setIsReady(true)
     }, [login])
-    return {login, logout, token, userId, isReady, isAuth}
+
+    
+    return { login, logout, token, userId, isReady, isAuth }
 }
